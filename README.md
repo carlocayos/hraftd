@@ -85,3 +85,35 @@ Automatically forwarding requests to set keys to the current leader is not imple
 
 ## Production use of Raft
 For a production-grade example of using Hashicorp's Raft implementation, to replicate a SQLite database, check out [rqlite](https://github.com/rqlite/rqlite).
+
+
+# Carlo Notes
+Run the nodes. Total of 3 nodes with 1 node failure tolerance.
+```bash
+# (optional) clean all existing data in clients/node0-3
+./clean.sh
+
+# initialize leader node
+./hraftd -id node0 clients/node0
+curl -XPOST localhost:11000/key -d '{"user1": "batman"}'
+curl -XGET localhost:11000/key/user1
+
+# start other followers
+./hraftd -id node1 -haddr :11001 -raddr :12001 -join :11000  clients/node1
+./hraftd -id node2 -haddr :11002 -raddr :12002 -join :11000  clients/node2
+```
+
+Add more key value pairs to LEADER node. Does not work if you add log to followers (?). 
+```bash
+curl -XPOST localhost:11000/key -d '{"user2": "robin"}'
+curl -XPOST localhost:11000/key -d '{"user3": "carlo"}'
+```
+
+Get values from any node. Log is replicated across all nodes
+```bash
+curl -XGET localhost:11000/key/user2
+curl -XGET localhost:11001/key/user2
+curl -XGET localhost:11002/key/user2
+```
+
+Try to exit LEADER node and observe re-election.
