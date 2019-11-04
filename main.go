@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/carlocayos/hraftd/http"
+	"github.com/carlocayos/hraftd/store"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-
-	"github.com/otoolep/hraftd/http"
-	"github.com/otoolep/hraftd/store"
 )
 
 // Command line defaults
